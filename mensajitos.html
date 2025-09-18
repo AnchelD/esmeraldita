@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Tu</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #fce4ec; /* Un color rosa pastel para el fondo */
+            font-family: 'Arial', sans-serif;
+            color: #4a4a4a;
+            margin: 0;
+            overflow: hidden; /* Oculta cualquier barra de desplazamiento */
+            position: relative; /* Para posicionar las burbujas y corazones dentro del body */
+        }
+
+        /* Estilos para la pantalla de inicio */
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #d81b60;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        #splashScreen p {
+            margin: 10px;
+        }
+        
+        /* Estilos para las burbujas de mensaje */
+        .bubble {
+            position: absolute;
+            padding: 15px 25px;
+            background-color: #ffffff;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            animation: fadeInOut 5s forwards;
+            max-width: 250px;
+            min-width: 150px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.8); }
+            10% { opacity: 1; transform: scale(1); }
+            90% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.2); }
+        }
+
+        .bubble p {
+            margin: 0;
+            font-size: 1.1em;
+            color: #d81b60;
+        }
+
+        /* Estilos para los corazones flotantes */
+        .heart {
+            position: absolute;
+            font-size: 1.5em;
+            color: #ff69b4;
+            animation: floatUp 10s infinite;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            10% { opacity: 0.8; transform: translateY(-10%) scale(1); }
+            100% { transform: translateY(-1000%) scale(1.2); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splashScreen">
+        <p>¡Hola Crayola!</p>
+        <p>Toca la pantalla para una sorpresita</p>
+    </div>
+
+    <audio id="audio" src="her.mp3" preload="auto"></audio>
+
+    <script>
+        // --- INSTRUCCIONES: PERSONALIZA TUS MENSAJES Y LA CANCIÓN ---
+        const mensajes = [
+            "Hola mi niña...",
+            "Pensé en ti y quise hacerte este pequeño detalle.",
+            "Solo para recordarte lo mucho que te amo.",
+            "Eres la persona más maravillosa que he conocido.",
+            "Cada kilometro que nos separa, es un recordatorio de lo mucho que te amo y te extraño.",
+            "Aunque estemos lejos, mi corazón siempre está contigo.",
+            "No importa la distancia, nuestro amor lo puede todo.",
+            "Eres mi lugar favorito, aunque no pueda abrazarte ahora mismo.",
+            "Soñar contigo es la parte más bonita de mi noche, porque sé que un día esos sueños se harán realidad.",
+            "Aunque no te pueda ver, siento tu amor en cada momento del día.",
+            "Contando los días hasta que la distancia se convierta en un recuerdo.",
+            "Nuestros mensajes son los abrazos que la distancia no nos permite darnos.",
+            "No importa lo que pase, mi amor por ti crece cada segundo.",
+            "Mi vida es más bonita desde que tú estás en ella.",
+            "Gracias por cada sonrisa que me das.",
+            "Me haces inmensamente feliz.",
+            "Te quiero hasta el infinito y más allá.",
+            "❤️",
+            "Siempre juntos.",
+            "Mi corazón es tuyo.",
+            "Cada día te amo más.",
+            "Eres mi sol.",
+            "Eres mi luna.",
+            "Eres mi razon de despertar todos los dias.",
+            "Eres el amor de mi vida",
+            "✨",
+            "Ya quiero ir a verte otra vez...",
+            "Estoy aquí para apoyarte en cada paso del camino.",
+            "TU PUEDES.",
+            "NOSOTROS PODEMOS",
+            "No sé qué hice para merecer a alguien tan increíble como tú, pero no lo cambiaría por nada.",
+            "Eres mi primer pensamiento por la mañana y el último antes de dormir. Estás siempre en mi mente y en mi corazón.",
+            "No sé dónde nos llevará el futuro, pero sé que quiero estar contigo en cada paso del camino.",
+            "Eres el pequeño detalle que hace mi día perfecto.",
+            "Si tuviera que elegir de nuevo, te elegiría una y otra vez.",
+            "Creo que tengo una adicción, y se llama 'tú'. No hay cura, y honestamente, no la quiero.",
+            "💛",
+            "Si el amor fuera el espacio, tú serías mi galaxia, vasta, hermosa e infinita.",
+            "Eres el cometa que pasó por mi vida y lo iluminó todo.",
+            "Eres la melodía que le faltaba a mi corazón para sonar completo.",
+            "Tu inteligencia me fascina tanto como tu belleza.",
+            "Tu amabilidad y tu corazón bondadoso son las cosas más hermosas de ti.",
+            "Cada vez que te escucho hablar, me doy cuenta de lo brillante que eres.",
+            "Eres la persona más fuerte que conozco. No hay nada que no puedas lograr.",
+            "Tienes el don de hacer que todo sea más bonito y más fácil.",
+            "TE AMO.",
+            "TE AMO.",
+            "TE AMO.",
+            "TE AMO.",
+            "TE AMO.",
+            "TE AMO.",
+            "TE AMO.",
+            "Feliz aniversario bonita.",
+            "Gracias por todo este tiempo.",
+            "Pronto te compensare todo",
+            "te amo de verdad te amo",
+        ];
+        const tiempoEsperaBurbujas = 6000; // 2 segundos entre cada burbuja
+
+        // ----------------- NO ES NECESARIO MODIFICAR EL CÓDIGO DE ABAJO -----------------
+        const body = document.body;
+        const audio = document.getElementById('audio');
+        const splashScreen = document.getElementById('splashScreen');
+        let indexMensaje = 0;
+
+        function getRandomPosition() {
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const top = Math.random() * (viewportHeight - 100);
+            const left = Math.random() * (viewportWidth - 200);
+            return { top: top + 'px', left: left + 'px' };
+        }
+
+        function mostrarBurbuja(mensaje) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = `<p>${mensaje}</p>`;
+            const position = getRandomPosition();
+            bubble.style.top = position.top;
+            bubble.style.left = position.left;
+            body.appendChild(bubble);
+
+            setTimeout(() => {
+                bubble.remove();
+            }, 5000);
+        }
+
+        function cicloMensajes() {
+            mostrarBurbuja(mensajes[indexMensaje]);
+            indexMensaje++;
+            if (indexMensaje >= mensajes.length) {
+                indexMensaje = 0;
+            }
+            setTimeout(cicloMensajes, tiempoEsperaBurbujas);
+        }
+
+        function createHeart() {
+            const heart = document.createElement('span');
+            heart.className = 'heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 5 + 5 + 's';
+            body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, parseFloat(heart.style.animationDuration) * 1000);
+        }
+
+        function startExperience() {
+            // Reproducir el audio
+            audio.play().catch(error => {
+                console.log("No se pudo reproducir el audio: ", error);
+            });
+            
+            // Iniciar los ciclos de animación
+            cicloMensajes();
+            setInterval(createHeart, 300);
+
+            // Ocultar la pantalla de inicio
+            splashScreen.style.opacity = '0';
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+            }, 1000); // 1 segundo para la transición
+        }
+
+        // Se activa el evento cuando se toca la pantalla
+        splashScreen.addEventListener('click', startExperience);
+        splashScreen.addEventListener('touchend', startExperience);
+    </script>
+</body>
+</html>
